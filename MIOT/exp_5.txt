@@ -1,0 +1,78 @@
+PUBLISHER: 
+import me 
+import board 
+import adafruit_dht 
+import paho.mq .client as mq 
+import json 
+ 
+# MQTT broker details 
+MQTT_BROKER = "broker.hivemq.com" 
+MQTT_PORT = 1883 
+MQTT_TOPIC = "rpi5/dht11/data" 
+ 
+# Ini alize DHT11 sensor on GPIO4 (Pin 7) 
+dht_sensor = adafruit_dht.DHT11(board.D4) 
+ 
+# Create MQTT client (no callback_api_version 
+specified) 
+client = mq .Client(client_id="rpi5-dht11") 
+client.connect(MQTT_BROKER, MQTT_PORT, 60) 
+ 
+print(" Sending DHT11 data to MQTT broker...") 
+ 
+try: 
+    while True: 
+        try: 
+            temperature = dht_sensor.temperature 
+            humidity = dht_sensor.humidity 
+ 
+            if temperature is not None and humidity is not 
+None: 
+                data = { 
+                    "temperature": temperature, 
+                    "humidity": humidity 
+                } 
+                payload = json.dumps(data) 
+                print("Sending:", payload) 
+                client.publish(MQTT_TOPIC, payload) 
+            else: 
+                print("Sensor returned None") 
+ 
+        except RunmeError as e: 
+            print("Sensor read error:", e) 
+ 
+        me.sleep(5) 
+ 
+except KeyboardInterrupt: 
+    print("Stopped by user.") 
+ 
+finally: 
+    client.disconnect() 
+    print("MQTT disconnected.")
+
+SUBSCRIBER: 
+import paho.mq .client as mq 
+import json 
+# Called when client connects to broker 
+def on_connect(client, userdata, flags, rc): 
+    print(" Connected with result code", rc) 
+    client.subscribe("rpi5/dht11/data")  # Subscribe to 
+your topic 
+# Called when message is received 
+def on_message(client, userdata, msg): 
+    try: 
+        data = json.loads(msg.payload.decode()) 
+        temperature = data.get("temperature") 
+        humidity = data.get("humidity") 
+        print(f"Temp: {temperature}°C |  Humidity: 
+{humidity}%") 
+    except Excep on as e: 
+        print("Error decoding message:", e) 
+# Set up MQTT client 
+client = mq .Client() 
+client.on_connect = on_connect 
+client.on_message = on_message 
+# Connect to public broker 
+client.connect("broker.hivemq.com", 1883, 60) 
+# Keep listening forever 
+client.loop_forever()

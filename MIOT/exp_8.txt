@@ -1,0 +1,46 @@
+Arduino Side Code : 
+void setup() { 
+Serial.begin(9600); // HC-05 default baud 
+} 
+void loop() { 
+Serial.println("Hello Pi"); 
+delay(1000); 
+// If Pi sends data back 
+if (Serial.available()) { 
+char c = Serial.read(); 
+// Echo received char back 
+Serial.print("Got from Pi: "); 
+Serial.println(c); 
+} 
+}
+
+Raspberry Pi Python Application: 
+
+Python script (bt_connect.py): 
+import serial 
+import time 
+ 
+# Connect to HC-05 serial port 
+bt = serial.Serial("/dev/rfcomm0", baudrate=9600, timeout=1) 
+ 
+while True: 
+    # Read data from Arduino 
+    data = bt.readline().decode('utf-8').strip() 
+    if data: 
+        print("From Arduino:", data) 
+ 
+    # Send message to Arduino 
+    bt.write(b'H')   
+    time.sleep(2) import serial 
+import time 
+ 
+# Connect to HC-05 serial port 
+bt = serial.Serial("/dev/rfcomm0", baudrate=9600, timeout=1) 
+while True: 
+# Read data from Arduino 
+data = bt.readline().decode('utf-8').strip() 
+if data: 
+print("From Arduino:", data) 
+# Send message to Arduino 
+bt.write(b'H')   
+time.sleep(2)

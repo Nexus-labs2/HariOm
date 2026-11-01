@@ -1,0 +1,43 @@
+1) PIR MOTION SENSOR 
+ 
+from gpiozero import Mo onSensor 
+ 
+pir = Mo onSensor(17) 
+ 
+print("Wai ng for mo on...") 
+ 
+while True: 
+    pir.wait_for_mo on() 
+    print("Mo on Detected!") 
+    pir.wait_for_no_mo on() 
+    print("No Mo on") 
+ 
+ 
+2) LM35 TEMPERATURE SENSOR 
+ 
+from gpiozero import MCP3008 
+from me import sleep 
+ 
+sensor = MCP3008(channel=0, max_voltage=3.3) 
+ 
+while True: 
+    voltage = sensor.value * 3.3 
+    temperature = voltage * 100 
+ 
+    print("Temperature:", round(temperature, 1), "°C") 
+    sleep(1) 
+ 
+3) IR SENSOR 
+ 
+from gpiozero import DigitalInputDevice 
+from me import sleep 
+ 
+ir = DigitalInputDevice(23, pull_up=False) 
+ 
+while True: 
+    if not ir.value: 
+        print("Object Detected!") 
+    else: 
+        print("No Object Detected.") 
+ 
+    sleep(0.5)
